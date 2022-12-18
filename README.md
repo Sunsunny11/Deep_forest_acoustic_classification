@@ -5,5 +5,5 @@ Pytorch: Deep nerual decision forest for acoustic scence classification
 author={Sun, Jianyuan and Liu, Xubo and Mei, Xinhao and Zhao, Jinzheng and Plumbley, Mark D. and Kılıç, Volkan and Wang, Wenwu},  <br>
 booktitle={2022 30th European Signal Processing Conference (EUSIPCO)},  <br>
 title={Deep Neural Decision Forest for Acoustic Scene Classification},  <br>
-year={2022},<br>  
+year={2022},<br>
 pages={772-776}}
