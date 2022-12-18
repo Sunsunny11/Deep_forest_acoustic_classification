@@ -6,4 +6,4 @@ author={Sun, Jianyuan and Liu, Xubo and Mei, Xinhao and Zhao, Jinzheng and Plumb
 booktitle={2022 30th European Signal Processing Conference (EUSIPCO)},  <br>
 title={Deep Neural Decision Forest for Acoustic Scene Classification},  <br>
 year={2022},<br>  
-pages={772-776}} <br>
+pages={772-776}}
