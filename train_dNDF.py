@@ -23,7 +23,6 @@ from early_stopping import EarlyStopping
 from sklearn import metrics
 from tqdm import tqdm
 from dNDF import ASCFeatureLayer, Forest, NeuralDecisionForest, PANNs_FeatureLayer
-#from linearSVM import multiClassHingeLoss
 from torch.autograd import Variable
 import torch.nn.functional as F
 from pytorch.AudioTransformer import AudioTransformer
@@ -108,10 +107,8 @@ def train(args):
                          'n_class': 10,    #10
                          'jointly_training': jointly_training}
         forest = Forest(**forest_params)
-        #model = NeuralDecisionForest(feature_layer, forest, audioAttention)
         model = NeuralDecisionForest(feature_layer, forest)
         print(model)
-       #model = nn.DataParallel(model)
 
 
     if 'cuda' in str(device):
@@ -154,12 +151,6 @@ def train(args):
                     feats2 = torch.squeeze(feats2, 0).to(device)         #tensor([512, 6])
                     feats = feats2.transpose(1, 0)       #tensor([6, 512])
 
-                    #if feats2.shape[0] == feats.shape[2]:
-                        #feats = feats2
-                    #else:
-                        #f = feats.shape[0]
-                        #idx = f-1
-                        #feats = feats2[:idx, :]
                     target = batch_data_dict['target']
                     feat_batches.append(feats)
                     target_batches.append(target)
@@ -176,53 +167,18 @@ def train(args):
                        for mu, target in zip(mu_batches, target_batches):
                            pi = tree.get_pi()  # [n_leaf,n_class]
                            prob = tree.cal_prob(mu, pi)  # [batch_size,n_class]
-                    #Variable to Tensor
+                       #Variable to Tensor
                            pi = pi.data        # [n_leaf,n_class]
                            prob = prob.data     # [batch_size,n_class]
                            mu = mu.data         #[batch_size,n_leaf]
-
-                           #prob1 = prob.shape[0]
-                           #mu1 = mu.shape[0]
-                           #target1 = target.shape[0]
-
-                           #if prob1 == batch_size:
-                           #   prob = prob
-                           #else:
-                              #probxx = torch.zeros(1, tree.n_class).to(device)
-                              #prob = torch.cat((prob, probxx), dim=0)
-
-                           #if mu1 == batch_size:
-                              #mu = mu
-                           #else:
-                              #muxx = torch.zeros(1, tree.n_leaf).to(device)
-                              #mu = torch.cat((mu, muxx), dim=0)
-
-                           #if target1 == batch_size:
-                              #target = target
-                           #else:
-                              #targetxx = torch.zeros(1, tree.n_class).to(device)
-                              #target = torch.cat((target, targetxx), dim=0)
 
                            _train_target = target.unsqueeze(1)  # [batch_size,1,n_class]
                            _pi = pi.unsqueeze(0)    # [1,n_leaf,n_class]
                            _mu = mu.unsqueeze(2)    # [batch_size,n_leaf,1]
                            _prob = torch.clamp(prob.unsqueeze(1), min=1e-6, max=1.)  # [batch_size,1,n_class]
 
-                           #_train_target1 = _train_target.shape[0]
-                           #if _train_target1 == batch_size:
-                               #_train_target = _train_target
-                           #else:
-                               #xx = torch.zeros(512, 1).to(device)
-                               #x = torch.cat((x, xx), dim=1)
-
                            _new_pi = torch.mul(torch.mul(_train_target, _pi), _mu) / _prob  # [batch_size,n_leaf,n_class]
                            _new_pi1 = _new_pi.shape[0]
-
-                           #if _new_pi1 == batch_size:
-                               #_new_pi = _new_pi
-                           #else:
-                               #_new_pixx = torch.zeros(1, tree.n_leaf, tree.n_class).to(device)
-                              # _new_pi = torch.cat((_new_pi, _new_pixx), dim=0)
 
                            new_pi += torch.sum(_new_pi, dim=0)
 
@@ -245,50 +201,15 @@ def train(args):
                 loss = loss_func(batch_output_dict, batch_target_dict)
             elif cls_type == 'forest':
                 batch_target = torch.argmax(batch_target_dict['target'], axis=1)
-                #batch_target1 = batch_target.shape[0]
-                #if batch_target1 == batch_size:
-                   #batch_target = torch.argmax(batch_target_dict['target'], axis=1)
-               # else:
-                    #batch_targetxx = torch.zeros(1, dtype=torch.int).to(device)
-                    #batch_target = torch.cat((batch_target, batch_targetxx), dim=0)
-
+                
                 batch_output = batch_output_dict['clipwise_output']
                 loss = F.nll_loss(torch.log(batch_output), batch_target)
 
             # Backward
             loss.backward()
-            # print(loss)
 
             optimizer.step()
             optimizer.zero_grad()
-
-        #model.eval()
-        #test_loss = 0
-        #correct = 0
-        #average_precision = 0
-        #test_pbar = tqdm(test_loader)
-        #test_pbar.set_description(f'test')
-        #with torch.no_grad():
-            #for batch_data_dict in test_pbar:
-                #batch_data_dict['waveform'] = batch_data_dict['waveform'].to(device)
-                #data = Variable(batch_data_dict['waveform'])
-                #batch_data_dict['target'] = batch_data_dict['target'].to(device)
-                #batch_test_target = torch.argmax(batch_data_dict['target'], axis=1)
-                #target = Variable(batch_test_target)
-                #batch_output = model(batch_data_dict['waveform'])
-                #output = batch_output['clipwise_output']
-                #test_loss += F.nll_loss(torch.log(output), batch_test_target, size_average=False).item()
-                #pred = output.max(1, keepdim=True)[1]
-                #correct += pred.eq(target.data.view_as(pred)).cpu().sum()
-
-                ####compute mAP
-                #output2 = output.cpu()
-                #pred2 = pred.cpu()
-                #average_precision += metrics.average_precision_score(pred2, output2, average='macro')
-
-            #test_loss /= len(test_loader)
-            #logging.info('Accuracy: {}/{} ({:.6f})\n'.format(test_loss, correct, len(test_loader), correct / len(test_loader)))
-            #logging.info('Validate test mAP: {:.3f}'.format(average_precision))
 
         # Evaluate
         test_statistics = evaluator.evaluate(test_loader)
@@ -308,15 +229,6 @@ def train(args):
         if earlystopping.early_stop:
             break
 
-            # train_fin_time = time.time()
-            # train_time = train_fin_time - train_bgn_time
-            # validate_time = time.time() - train_fin_time
-            # logging.info(
-            #     'epoch: {}, train time: {:.3f} s, validate time: {:.3f} s'
-            #     ''.format(epoch, train_time, validate_time))
-            #
-            # logging.info('------------------------------------')
-            # train_bgn_time = time.time()
 def save_model(model, optimizer, step, acc, each_acc, exp_name, ckpt_path):
     save_path = os.path.join(ckpt_path, exp_name + '.pt')
     torch.save({
