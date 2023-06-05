@@ -35,12 +35,8 @@ class Evaluator(object):
         average_precision = metrics.average_precision_score(
             target, clipwise_output, average='macro')
 
-        #auc = metrics.roc_auc_score(target, clipwise_output, average=None)
-
         target_acc = np.argmax(target, axis=1)
         clipwise_output_acc = np.argmax(clipwise_output, axis=1)
-        #pred = clipwise_output_acc.max(1, keepdim=True)[1]
-        #acc = accuracy_score(target_acc, pred)
         acc =accuracy_score(target_acc, clipwise_output_acc)
 
         each_acc = []
