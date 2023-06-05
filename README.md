@@ -1,7 +1,7 @@
 # Deep_forest_acoustic_classification
 Pytorch: Deep nerual decision forest for acoustic scence classification
 # Set up environment
-Create conda environment with dependencies: conda env ceate -f requirement.yml
+dark mode Create conda environment with dependencies: **conda env ceate -f requirement.yml**
 # Citation
 @INPROCEEDINGS{9909575,  <br>
 author={Sun, Jianyuan and Liu, Xubo and Mei, Xinhao and Zhao, Jinzheng and Plumbley, Mark D. and Kılıç, Volkan and Wang, Wenwu},  <br>
