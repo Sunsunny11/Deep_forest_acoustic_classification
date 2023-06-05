@@ -3,7 +3,8 @@ Pytorch: Deep nerual decision forest for acoustic scence classification
 # Set up environment
 + Create conda environment with dependencies: **conda env ceate -f requirement.yml**
 # Run experiments
-+ Run: **train_dNDF.py**
++ Run: **python train_dNDF.py**
++ Setting paramters: **tree_depth (the depth od tree) and n_tree (the number of tree)**
 # Citation
 @INPROCEEDINGS{9909575,  <br>
 author={Sun, Jianyuan and Liu, Xubo and Mei, Xinhao and Zhao, Jinzheng and Plumbley, Mark D. and Kılıç, Volkan and Wang, Wenwu},  <br>
