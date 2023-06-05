@@ -50,9 +50,9 @@ class Evaluator(object):
             f = e/len(target_acc)
             each_acc.append(f)
 
-        #statistics = {'average_precision': average_precision, 'auc': auc, 'acc': acc}
+        
         statistics = {'average_precision': average_precision, 'acc': acc, 'each_acc': each_acc, 'target_acc':target}
 
         return statistics
-        #computer the classification of each class
+        
 
